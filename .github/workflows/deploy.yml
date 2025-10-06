@@ -1,11 +1,13 @@
-name: Deploy to Netlify
+name: Code Quality Check
 
 on:
   push:
     branches: [main, staging]
+  pull_request:
+    branches: [main, staging]
 
 jobs:
-  build-and-deploy:
+  quality-check:
     runs-on: ubuntu-latest
     
     steps:
@@ -26,32 +28,3 @@ jobs:
 
       - name: Run type checking
         run: npm run type-check
-
-      - name: Build project
-        run: npm run build
-
-      - name: Verify build output
-        run: |
-          if [ ! -d "dist" ]; then
-            echo "❌ Build failed - dist directory not found"
-            exit 1
-          fi
-          echo "✅ Build output verified - $(ls -la dist | wc -l) files in dist/"
-
-      - name: Install Netlify CLI
-        run: npm install -g netlify-cli
-
-      - name: Deploy to Netlify
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: |
-          if [ "${GITHUB_REF##*/}" = "main" ]; then
-            echo "🚀 Deploying to Production..."
-            netlify deploy --prod --dir=dist --message "Deploy from GitHub Actions - Production" --site=tbb-website
-            echo "🔗 Production URL: https://tbb-website.netlify.app"
-          else
-            echo "🚀 Deploying to Staging..."
-            netlify deploy --alias=staging --dir=dist --message "Deploy from GitHub Actions - Staging" --site=tbb-website
-            echo "🔗 Staging URL: https://staging--tbb-website.netlify.app"
-          fi
