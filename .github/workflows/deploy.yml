@@ -30,6 +30,14 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Verify build output
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "❌ Build failed - dist directory not found"
+            exit 1
+          fi
+          echo "✅ Build output verified - $(ls -la dist | wc -l) files in dist/"
+
       - name: Install Netlify CLI
         run: npm install -g netlify-cli
 
@@ -40,10 +48,10 @@ jobs:
         run: |
           if [ "${GITHUB_REF##*/}" = "main" ]; then
             echo "🚀 Deploying to Production..."
-            netlify deploy --prod --message "Deploy from GitHub Actions - Production"
+            netlify deploy --prod --dir=dist --message "Deploy from GitHub Actions - Production"
             echo "🔗 Production URL: https://tbb-website.netlify.app"
           else
             echo "🚀 Deploying to Staging..."
-            netlify deploy --alias=staging --message "Deploy from GitHub Actions - Staging"
+            netlify deploy --alias=staging --dir=dist --message "Deploy from GitHub Actions - Staging"
             echo "🔗 Staging URL: https://staging--tbb-website.netlify.app"
           fi
