@@ -48,10 +48,10 @@ jobs:
         run: |
           if [ "${GITHUB_REF##*/}" = "main" ]; then
             echo "🚀 Deploying to Production..."
-            netlify deploy --prod --dir=dist --message "Deploy from GitHub Actions - Production"
+            netlify deploy --prod --dir=dist --message "Deploy from GitHub Actions - Production" --site=tbb-website
             echo "🔗 Production URL: https://tbb-website.netlify.app"
           else
             echo "🚀 Deploying to Staging..."
-            netlify deploy --alias=staging --dir=dist --message "Deploy from GitHub Actions - Staging"
+            netlify deploy --alias=staging --dir=dist --message "Deploy from GitHub Actions - Staging" --site=tbb-website
             echo "🔗 Staging URL: https://staging--tbb-website.netlify.app"
           fi
