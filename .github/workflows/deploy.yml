@@ -5,7 +5,7 @@ on:
     branches: [main, staging]
 
 jobs:
-  build-and-deploy:
+  quality-check-and-deploy:
     runs-on: ubuntu-latest
     
     steps:
@@ -26,9 +26,6 @@ jobs:
 
       - name: Run type checking
         run: npm run type-check
-
-      - name: Build project
-        run: npm run build
 
       - name: Install Netlify CLI
         run: npm install -g netlify-cli
