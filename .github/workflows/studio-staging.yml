@@ -40,7 +40,7 @@ jobs:
       - name: Deploy to Netlify
         id: netlify-deploy
         run: |
-          npx netlify deploy --filter studio --build --context deploy-preview --alias ${{ env.NETLIFY_DEPLOY_ALIAS }} --message ${{ github.sha }}
+          npx netlify deploy --filter studio --build --context deploy-preview --alias ${{ env.NETLIFY_DEPLOY_ALIAS }} --message ${{ github.sha }} --site ${{ secrets.STUDIO_SITE_ID }}
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.STUDIO_SITE_ID }}
