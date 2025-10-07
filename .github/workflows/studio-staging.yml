@@ -1,0 +1,47 @@
+name: Studio Staging | Build and Deploy
+on:
+  push:
+    branches:
+      - staging
+    paths:
+      - apps/studio/**
+      - .github/workflows/studio-staging.yml
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build, test and deploy to Netlify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: Cache node_modules
+        id: cache-node-modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            **/node_modules
+          key: ${{ runner.os }}-${{ matrix.node-version }}-nodemodules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.node-version }}-nodemodules-
+
+      - name: Install dependencies
+        if: |
+          steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Install Netlify CLI
+        run: npm install -g netlify-cli
+
+      - name: Deploy to Netlify
+        id: netlify-deploy
+        run: |
+          npx netlify deploy --filter studio --build --context deploy-preview --alias ${{ env.NETLIFY_DEPLOY_ALIAS }} --message ${{ github.sha }}
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.STUDIO_SITE_ID }}
+          NETLIFY_DEPLOY_ALIAS: staging
