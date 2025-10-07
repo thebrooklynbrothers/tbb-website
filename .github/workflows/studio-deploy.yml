@@ -2,45 +2,57 @@ name: Studio | Build and Deploy
 
 on:
   push:
-    branches: [main, staging]
+    branches:
+      - main
+      - staging
     paths:
       - apps/studio/**
       - .github/workflows/studio-deploy.yml
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  build:
+    name: Build and deploy Sanity Studio
     runs-on: ubuntu-latest
-    name: Build and deploy Sanity Studio to Netlify
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v3
         with:
           node-version: 22
-          cache: 'npm'
+
+      - name: Cache node_modules
+        id: cache-node-modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            **/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm ci
 
       - name: Install Netlify CLI
         run: npm install -g netlify-cli
 
-      - name: Build Studio
-        run: npm run build -w studio
-
-      - name: Deploy to Netlify
+      - name: Build and Deploy
+        id: netlify-deploy
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_STUDIO_ID: ${{ secrets.NETLIFY_STUDIO_ID }}
         run: |
           cd apps/studio
-          
+
+          # Build do Studio
+          npm run build
+
+          # Detecta branch e faz deploy correspondente
           if [ "${GITHUB_REF##*/}" = "main" ]; then
-            echo "🚀 Deploying Studio to Production..."
+            echo "🚀 Deploying to Production..."
             npx netlify deploy \
               --build \
               --context production \
@@ -49,7 +61,7 @@ jobs:
               --site ${{ secrets.NETLIFY_STUDIO_ID }}
             echo "🔗 Production URL: https://tbb-studio.netlify.app"
           else
-            echo "🚀 Deploying Studio to Staging..."
+            echo "🚀 Deploying to Staging..."
             npx netlify deploy \
               --build \
               --context deploy-preview \
