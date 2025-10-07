@@ -1,0 +1,3 @@
+[build]
+  publish = "apps/studio/.sanity"
+  command = "npm run build -w studio"
