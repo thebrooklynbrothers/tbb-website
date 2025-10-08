@@ -59,4 +59,4 @@ jobs:
             --message "Deploy from GitHub Actions - Staging (${GITHUB_SHA})" \
             --site ${{ secrets.NETLIFY_SITE_ID }}
 
-          echo "✅ Staging URL: https://staging--tbb.netlify.app"
+          echo "✅ Staging URL: https://staging--tbb-website.netlify.app"

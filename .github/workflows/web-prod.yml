@@ -57,4 +57,4 @@ jobs:
             --message "Deploy from GitHub Actions - Production (${GITHUB_SHA})" \
             --site ${{ secrets.NETLIFY_SITE_ID }}
 
-          echo "✅ Production URL: https://tbb.netlify.app"
+          echo "✅ Production URL: https://tbb-website.netlify.app"
