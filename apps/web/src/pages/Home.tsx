@@ -6,9 +6,9 @@ import { useEffect, useState } from "react";
 import { sanityClient } from "@/lib/sanity";
 import groq from "groq";
 
-type Post = { _id: string; title?: string; excerpt?: string };
+type Post = { _id: string; title?: string; description?: string };
 
-const postsQuery = groq`*[_type == "post"]{_id, title, excerpt} | order(_createdAt desc)`;
+const postsQuery = groq`*[_type == "post"]{_id, title, description} | order(_createdAt desc)`;
 
 const Home = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -34,12 +34,14 @@ const Home = () => {
       <Awards /> */}
 
       <section className="w-full h-full flex flex-col items-center justify-center pt-20">
-        <h2 className="text-2xl font-bold mb-4">Latest posts (Sanity)</h2>
+        <h2 className="text-2xl font-bold mb-4">
+          Latest posts Integration (Sanity)
+        </h2>
         <ul className="list-disc pl-4">
           {posts.map((p) => (
             <li key={p._id}>
               <strong>{p.title || "Untitled"}</strong>
-              {p.excerpt ? ` — ${p.excerpt}` : ""}
+              {p.description ? ` — ${p.description}` : ""}
             </li>
           ))}
           {posts.length === 0 && <li>No posts yet.</li>}

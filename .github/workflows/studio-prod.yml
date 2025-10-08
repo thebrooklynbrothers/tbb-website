@@ -1,0 +1,57 @@
+name: Studio Production | Build and Deploy
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - apps/studio/**
+      - .github/workflows/studio-prod.yml
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build, test and deploy to Netlify (Production)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: Cache node_modules
+        id: cache-node-modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            **/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Install Netlify CLI
+        run: npm install -g netlify-cli
+
+      - name: Deploy to Netlify (Production)
+        id: netlify-deploy
+        run: |
+          cd apps/studio
+          npm run build
+
+          echo "🚀 Deploying Sanity Studio (Production)..."
+          npx netlify deploy \
+            --build \
+            --context production \
+            --prod \
+            --message "Deploy from GitHub Actions - Production (${GITHUB_SHA})" \
+            --site ${{ secrets.NETLIFY_STUDIO_ID }}
+
+          echo "✅ Production URL: https://tbb-studio.netlify.app"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_STUDIO_ID: ${{ secrets.NETLIFY_STUDIO_ID }}
