@@ -34,8 +34,8 @@ jobs:
           fi
         continue-on-error: true
         env:
-          NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
-          NEXT_PUBLIC_SANITY_DATASET: production
+          VITE_SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
+          VITE_SANITY_DATASET: production
 
       - name: Install Netlify CLI
         run: npm install -g netlify-cli

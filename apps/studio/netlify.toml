@@ -1,15 +1,9 @@
 [build]
-  publish = ".sanity"
   command = "npm run build"
+  publish = ".sanity"
 
 [build.environment]
   NODE_VERSION = "22"
-
-# SPA fallback para o Studio (opcional, se você quiser abrir URLs internas)
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
 
 # Cabeçalhos de segurança (opcional)
 [[headers]]
