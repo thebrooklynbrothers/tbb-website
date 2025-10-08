@@ -14,9 +14,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: 22
 
@@ -34,8 +36,10 @@ jobs:
           fi
         continue-on-error: true
         env:
-          VITE_SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
+          VITE_SANITY_PROJECT_ID: ${{ secrets.VITE_SANITY_PROJECT_ID }}
           VITE_SANITY_DATASET: staging
+          VITE_SANITY_TOKEN: ${{ secrets.VITE_SANITY_TOKEN }}
+          VITE_SANITY_API_VERSION: ${{ secrets.VITE_SANITY_API_VERSION }}
 
       - name: Install Netlify CLI
         run: npm install -g netlify-cli
@@ -46,6 +50,10 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
           NETLIFY_DEPLOY_ALIAS: staging
+          VITE_SANITY_PROJECT_ID: ${{ secrets.VITE_SANITY_PROJECT_ID }}
+          VITE_SANITY_DATASET: staging
+          VITE_SANITY_TOKEN: ${{ secrets.VITE_SANITY_TOKEN }}
+          VITE_SANITY_API_VERSION: ${{ secrets.VITE_SANITY_API_VERSION }}
         run: |
           cd apps/web
           echo "🚀 Building Web Staging..."
