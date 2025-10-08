@@ -7,8 +7,8 @@ export default defineConfig({
   name: 'default',
   title: 'TBB Website',
 
-  projectId: 'txpkq89q',
-  dataset: 'production',
+  projectId: process.env.VITE_SANITY_PROJECT_ID!,
+  dataset: process.env.VITE_SANITY_DATASET!,
 
   plugins: [structureTool(), visionTool()],
 
