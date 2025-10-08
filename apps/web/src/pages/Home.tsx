@@ -35,7 +35,7 @@ const Home = () => {
 
       <section className="w-full h-full flex flex-col items-center justify-center pt-20">
         <h2 className="text-2xl font-bold mb-4">
-          Latest posts Integration (Sanity)
+          Latest posts Integration (Sanity CMS)
         </h2>
         <ul className="list-disc pl-4">
           {posts.map((p) => (
