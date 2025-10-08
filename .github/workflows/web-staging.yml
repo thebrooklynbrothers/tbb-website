@@ -44,7 +44,8 @@ jobs:
         id: netlify-deploy
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.WEB_SITE_ID }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_DEPLOY_ALIAS: staging
         run: |
           cd apps/web
           echo "🚀 Building Web Staging..."
@@ -56,6 +57,6 @@ jobs:
             --context deploy-preview \
             --alias staging \
             --message "Deploy from GitHub Actions - Staging (${GITHUB_SHA})" \
-            --site ${{ secrets.WEB_SITE_ID }}
+            --site ${{ secrets.NETLIFY_SITE_ID }}
 
           echo "✅ Staging URL: https://staging--tbb.netlify.app"

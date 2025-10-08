@@ -44,7 +44,7 @@ jobs:
         id: netlify-deploy
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.WEB_SITE_ID }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         run: |
           cd apps/web
           echo "🚀 Building Web Production..."
@@ -55,6 +55,6 @@ jobs:
             --build \
             --prod \
             --message "Deploy from GitHub Actions - Production (${GITHUB_SHA})" \
-            --site ${{ secrets.WEB_SITE_ID }}
+            --site ${{ secrets.NETLIFY_SITE_ID }}
 
           echo "✅ Production URL: https://tbb.netlify.app"
