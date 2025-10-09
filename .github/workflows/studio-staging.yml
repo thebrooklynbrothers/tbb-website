@@ -15,31 +15,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout code
       - uses: actions/checkout@v3
-
-      # 2. Setup Node.js
       - uses: actions/setup-node@v3
         with:
           node-version: 22
 
-      # 3. Cache node_modules
-      - name: Cache node_modules
-        id: cache-node-modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            **/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      # 4. Install dependencies
       - name: Install dependencies
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm ci
+        working-directory: apps/studio
 
-      # 5. Build Studio
       - name: Build Studio
         run: npm run build
         working-directory: apps/studio
@@ -47,7 +31,6 @@ jobs:
           VITE_SANITY_PROJECT_ID: ${{ secrets.VITE_SANITY_PROJECT_ID }}
           VITE_SANITY_DATASET: staging
 
-      # 6. Deploy to Netlify
       - name: Deploy Studio to Netlify
         run: |
           npx netlify deploy \
@@ -55,7 +38,7 @@ jobs:
             --context deploy-preview \
             --alias staging \
             --dir apps/studio/.sanity \
-            --message "Deploy from GitHub Actions - Staging (${GITHUB_SHA})" \
+            --message "Deploy Studio Staging (${GITHUB_SHA})" \
             --site ${{ secrets.NETLIFY_STUDIO_ID }}
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}

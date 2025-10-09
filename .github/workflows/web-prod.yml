@@ -1,4 +1,5 @@
 name: Web Production | Build and Deploy
+
 on:
   push:
     branches:
@@ -14,45 +15,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 22
 
       - name: Install dependencies
         run: npm ci
+        working-directory: apps/web
 
-      - name: Generate Sanity types
-        run: npm run type
-        env:
-          SANITY_STUDIO_PROJECT_ID: ${{ secrets.VITE_SANITY_PROJECT_ID }}
-          SANITY_STUDIO_DATASET: production
-          SANITY_STUDIO_TOKEN: ${{ secrets.VITE_SANITY_TOKEN }}
-
-      - name: Build Web (Vite)
+      - name: Build Web
+        run: npm run build
+        working-directory: apps/web
         env:
           VITE_SANITY_PROJECT_ID: ${{ secrets.VITE_SANITY_PROJECT_ID }}
           VITE_SANITY_DATASET: production
-          VITE_SANITY_TOKEN: ${{ secrets.VITE_SANITY_TOKEN }}
-        run: |
-          cd apps/web
-          npm run build
 
       - name: Deploy to Netlify
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-          VITE_SANITY_PROJECT_ID: ${{ secrets.VITE_SANITY_PROJECT_ID }}
-          VITE_SANITY_DATASET: production
-          VITE_SANITY_TOKEN: ${{ secrets.VITE_SANITY_TOKEN }}
         run: |
-          cd apps/web
           npx netlify deploy \
             --build \
+            --context production \
             --prod \
-            --message "Deploy from GitHub Actions - Production (${GITHUB_SHA})" \
+            --dir apps/web/dist \
+            --message "Deploy Web Production (${GITHUB_SHA})" \
             --site ${{ secrets.NETLIFY_SITE_ID }}
-
-          echo "✅ Production URL: https://tbb-website.netlify.app"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
