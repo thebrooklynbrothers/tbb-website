@@ -10,48 +10,39 @@ on:
 
 jobs:
   build:
-    name: Build, test and deploy to Netlify (Production)
+    name: Build and Deploy Studio (Production)
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Cache node_modules
-        id: cache-node-modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            **/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
       - name: Install dependencies
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm ci
+        working-directory: apps/studio
 
-      - name: Install Netlify CLI
-        run: npm install -g netlify-cli
+      - name: Build Studio
+        run: npm run build
+        working-directory: apps/studio
+        env:
+          SANITY_STUDIO_PROJECT_ID: ${{ secrets.VITE_SANITY_PROJECT_ID }}
+          SANITY_STUDIO_DATASET: production
+          SANITY_STUDIO_TOKEN: ${{ secrets.VITE_SANITY_TOKEN }}
 
-      - name: Deploy to Netlify (Production)
+      - name: Deploy to Netlify
         id: netlify-deploy
         run: |
           cd apps/studio
-          npm run build
-
-          echo "🚀 Deploying Sanity Studio (Production)..."
           npx netlify deploy \
             --build \
             --context production \
             --prod \
-            --message "Deploy from GitHub Actions - Production (${GITHUB_SHA})" \
-            --site ${{ secrets.NETLIFY_STUDIO_ID }}
-
-          echo "✅ Production URL: https://tbb-studio.netlify.app"
+            --dir dist \
+            --message "Deploy from GitHub Actions - Production (${GITHUB_SHA})"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_STUDIO_ID: ${{ secrets.NETLIFY_STUDIO_ID }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_STUDIO_ID }}

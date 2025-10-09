@@ -14,38 +14,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Clean Dependencies
-        run: rm -rf node_modules package-lock.json
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Install Dependencies
-        run: npm install
+      - name: Generate Sanity types
+        run: npm run type -w studio
+        env:
+          SANITY_STUDIO_PROJECT_ID: ${{ secrets.VITE_SANITY_PROJECT_ID }}
+          SANITY_STUDIO_DATASET: staging
+          SANITY_STUDIO_TOKEN: ${{ secrets.VITE_SANITY_TOKEN }}
 
-      - name: Generate Sanity Types
-        run: |
-          npm ls @sanity/codegen @sanity/cli --depth=0 -w studio
-          if ! npm run type -w studio; then
-            echo "⚠️ Warning: mismatch between @sanity/codegen and @babel/types"
-          fi
-        continue-on-error: true
+      - name: Build Web (Vite)
         env:
           VITE_SANITY_PROJECT_ID: ${{ secrets.VITE_SANITY_PROJECT_ID }}
           VITE_SANITY_DATASET: staging
           VITE_SANITY_TOKEN: ${{ secrets.VITE_SANITY_TOKEN }}
-          VITE_SANITY_API_VERSION: ${{ secrets.VITE_SANITY_API_VERSION }}
+        run: |
+          cd apps/web
+          npm run build
 
-      - name: Install Netlify CLI
-        run: npm install -g netlify-cli
-
-      - name: Deploy Web (Staging)
-        id: netlify-deploy
+      - name: Deploy to Netlify
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
@@ -53,13 +48,8 @@ jobs:
           VITE_SANITY_PROJECT_ID: ${{ secrets.VITE_SANITY_PROJECT_ID }}
           VITE_SANITY_DATASET: staging
           VITE_SANITY_TOKEN: ${{ secrets.VITE_SANITY_TOKEN }}
-          VITE_SANITY_API_VERSION: ${{ secrets.VITE_SANITY_API_VERSION }}
         run: |
           cd apps/web
-          echo "🚀 Building Web Staging..."
-          npm run build
-
-          echo "🚀 Deploying to Netlify (Staging)..."
           npx netlify deploy \
             --build \
             --context deploy-preview \
