@@ -1,5 +1,4 @@
 name: Studio Production | Build and Deploy
-
 on:
   push:
     branches:
@@ -16,29 +15,37 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-node@v3
         with:
           node-version: 22
 
-      - name: Install dependencies
-        run: npm ci
-        working-directory: apps/studio
+      - name: Clean Dependencies
+        run: rm -rf node_modules package-lock.json
 
-      - name: Build Studio
-        run: npm run build
-        working-directory: apps/studio
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Install Netlify CLI
+        run: npm install -g netlify-cli
+
+      - name: Build Studio (Production)
+        run: |
+          cd apps/studio
+          npm run build
         env:
           VITE_SANITY_PROJECT_ID: ${{ secrets.VITE_SANITY_PROJECT_ID }}
           VITE_SANITY_DATASET: production
+          VITE_SANITY_TOKEN: ${{ secrets.VITE_SANITY_TOKEN }}
 
-      - name: Deploy Studio to Netlify
+      - name: Deploy Studio (Production)
         run: |
+          cd apps/studio
           npx netlify deploy \
             --build \
-            --context production \
+            --dir .sanity \
             --prod \
-            --dir apps/studio/.sanity \
-            --message "Deploy Studio Production (${GITHUB_SHA})" \
-            --site ${{ secrets.NETLIFY_STUDIO_ID }}
+            --site ${{ secrets.NETLIFY_STUDIO_ID }} \
+            --message "Deploy Studio Production (${GITHUB_SHA})"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
