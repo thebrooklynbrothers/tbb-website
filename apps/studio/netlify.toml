@@ -1,7 +1,7 @@
 [build]
   base = "apps/studio"
   command = "npm run build"
-  publish = ".sanity"
+  publish = "apps/studio/.sanity"
 
 [build.environment]
   NODE_VERSION = "22"

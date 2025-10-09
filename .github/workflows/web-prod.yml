@@ -25,7 +25,7 @@ jobs:
         run: npm ci
 
       - name: Generate Sanity types
-        run: npm run type -w studio
+        run: npm run type
         env:
           SANITY_STUDIO_PROJECT_ID: ${{ secrets.VITE_SANITY_PROJECT_ID }}
           SANITY_STUDIO_DATASET: production
